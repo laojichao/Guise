@@ -11,17 +11,17 @@ plugins {
 
 android {
     signingConfigs {
-        create("release") {
+/*        create("release") {
             enableV1Signing = true
             enableV2Signing = true
             enableV3Signing = true
             val config = getSigningConfig()
             val keyPath = config["storeFile"] ?: System.getenv("KEYSTORE_PATH")
-            storeFile = file(keyPath)
+                                                                                                                                              storeFile = file(keyPath)
             storePassword = config.getProperty("storePassword") ?: System.getenv("KEYSTORE_PWD")
             keyAlias = config.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS")
             keyPassword = config.getProperty("keyPassword") ?: System.getenv("KEY_PWD")
-        }
+        }*/
     }
 
     namespace = "com.houvven.guise"
@@ -40,7 +40,7 @@ android {
             useSupportLibrary = true
         }
 
-        signingConfig = signingConfigs.getByName("release")
+//        signingConfig = signingConfigs.getByName("release")
 
         javaCompileOptions {
             annotationProcessorOptions {

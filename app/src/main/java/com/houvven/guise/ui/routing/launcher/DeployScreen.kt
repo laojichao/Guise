@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.houvven.guise.R
 import com.houvven.guise.constant.AppConfigKey
@@ -170,6 +171,7 @@ private fun AppCard(appInfo: AppInfo) {
     ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
     DelicateCoroutinesApi::class
 )
+@Preview
 @Composable
 fun DeployScreen() {
 
@@ -228,11 +230,13 @@ fun DeployScreen() {
             )
         }
         val actions = @Composable {
+            //点击搜索按钮，显示搜索框，再次点击，关闭搜索框
             if (searching.not()) IconButton(onClick = { searching = true }) {
                 SimplifyIcon(Icons.Default.Search)
             } else IconButton(onClick = cancelSearch) {
                 SimplifyIcon(Icons.Default.Close)
             }
+            // 点击菜单按钮，显示菜单
             IconButton(onClick = { displayMenu = true }) { SimplifyIcon(Icons.Default.Menu) }
         }
 
