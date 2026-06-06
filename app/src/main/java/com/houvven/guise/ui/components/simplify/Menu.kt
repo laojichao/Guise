@@ -10,6 +10,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 
+/**
+ * A simplified [DropdownMenuItem] composable that accepts a plain [String] instead of
+ * a composable text block.
+ *
+ * Wraps the standard [DropdownMenuItem] by automatically wrapping [text] in a [Text]
+ * composable, reducing boilerplate for simple menu items.
+ *
+ * @param text The text label displayed in the menu item.
+ * @param onClick Callback invoked when the menu item is clicked.
+ * @param modifier Modifier applied to the menu item.
+ * @param leadingIcon Optional composable icon displayed before the text.
+ * @param trailingIcon Optional composable icon displayed after the text.
+ * @param enabled Whether the menu item is enabled for user interaction.
+ * @param colors The [MenuItemColors] for styling the menu item in different states.
+ * @param contentPadding The padding inside the menu item.
+ * @param interactionSource The [MutableInteractionSource] for observing interaction events.
+ */
 @Composable
 fun SimplifyDropdownMenuItem(
     text: String,

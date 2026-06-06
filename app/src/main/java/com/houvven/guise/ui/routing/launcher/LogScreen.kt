@@ -58,6 +58,22 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 
+/**
+ * Screen for viewing and managing Xposed module runtime logs.
+ *
+ * Displays all module logs stored in the local database via [ModuleLogDBHelper].
+ * Each log entry is color-coded by severity level:
+ * - ERROR: [MaterialTheme.colorScheme.error]
+ * - DEBUG: [MaterialTheme.colorScheme.primary]
+ * - INFO: [MaterialTheme.colorScheme.tertiary]
+ *
+ * Provides toolbar actions to:
+ * - Delete all logs from the database
+ * - Export logs to a file in the Downloads directory
+ *
+ * A floating action button allows manual refresh of the log list.
+ * An empty state message is shown when no logs are available.
+ */
 @OptIn(
     DelicateCoroutinesApi::class, ExperimentalMaterial3Api::class
 )
@@ -114,6 +130,7 @@ internal fun LogScreen() {
                     contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
                     items(logs) { log ->
+                        // Color-code log entries based on severity level
                         val color = when (log.type.uppercase().toCharArray()[0]) {
                             XposedLogger.Level.ERROR -> MaterialTheme.colorScheme.error
                             XposedLogger.Level.DEBUG -> MaterialTheme.colorScheme.primary

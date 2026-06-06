@@ -6,7 +6,18 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+/**
+ * The default Material 3 [Typography] configuration for the Guise application.
+ *
+ * Defines the [bodyLarge] text style as the primary override with:
+ * - Default system font family
+ * - Normal font weight
+ * - 16sp font size
+ * - 24sp line height
+ * - 0.5sp letter spacing
+ *
+ * All other text styles inherit from Material 3 defaults.
+ */
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,

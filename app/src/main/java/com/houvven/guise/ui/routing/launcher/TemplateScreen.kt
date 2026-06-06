@@ -65,18 +65,43 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 
+/**
+ * Constants for template type filtering in the template list screen.
+ *
+ * - [ALL]: show all templates regardless of type
+ * - [COMMON]: show only common (non-app-specific) templates, maps to [Template.Type.COMMON]
+ * - [EXCLUSIVE]: show only app-exclusive templates, maps to [Template.Type.EXCLUSIVE]
+ */
 private object TemplateTypeFilter {
     const val ALL = -1
     const val COMMON = Template.Type.COMMON
     const val EXCLUSIVE = Template.Type.EXCLUSIVE
 }
 
+/** The currently selected type filter for the template list. */
 private val typeFilter by derivedStateOf { mutableStateOf(TemplateTypeFilter.ALL) }
 
+/** Controls visibility of the enable-template confirmation dialog. */
 private val requestEnable by derivedStateOf { mutableStateOf(false) }
+
+/** The template pending enablement via the confirmation dialog. */
 private val requestEnableTemplate by derivedStateOf { mutableStateOf<Template?>(null) }
 
 
+/**
+ * A card composable representing a single configuration template.
+ *
+ * Displays the template name, optional description, and for exclusive templates,
+ * the target package name with its app icon. Supports:
+ * - Single click: enables exclusive templates directly via [EnableTemplateDialog],
+ *   or navigates to the enable-template screen for common templates
+ * - Long click: opens a context menu with edit and delete options
+ *
+ * Shows a "not installed" indicator icon for exclusive templates whose target
+ * application is not currently installed on the device.
+ *
+ * @param template the [Template] data to display in this card
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TemplateCard(template: Template) {
@@ -181,6 +206,18 @@ private fun TemplateCard(template: Template) {
 }
 
 
+/**
+ * The template management screen of the Guise launcher.
+ *
+ * Displays configuration templates in a 2-column staggered grid layout.
+ * Supports:
+ * - Filtering templates by type (all, common, app-exclusive) via [FilterChip] tabs
+ * - Importing templates from a JSON file via the system file picker
+ * - Exporting all templates to a JSON file in the Downloads directory
+ * - Adding new templates via the floating action button
+ * - Editing and deleting templates via long-press context menu on each card
+ * - Enabling templates to specific applications
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 internal fun TemplateScreen() {
@@ -251,8 +288,18 @@ internal fun TemplateScreen() {
         }
     }
 
+    /**
+     * A row of filter chips allowing the user to filter the template list by type.
+     * Provides "All", "Common", and "App-specific" filter options.
+     */
     @Composable
     fun TypeFilter() {
+        /**
+         * A single filter chip for a specific template type.
+         *
+         * @param label the display text for the chip
+         * @param value the [TemplateTypeFilter] constant this chip represents
+         */
         @Composable
         fun TypeFilterChip(label: String, value: Int) {
             FilterChip(
@@ -280,7 +327,7 @@ internal fun TemplateScreen() {
     }
 
 
-    // 脚手架
+    // Scaffold with top bar, floating action button, and type-filtered template grid
     Scaffold(
         topBar = topBar,
         floatingActionButton = floatingButton,
@@ -305,6 +352,7 @@ internal fun TemplateScreen() {
 
             }
 
+            // Show enable confirmation dialog for exclusive templates
             requestEnableTemplate.value?.let {
                 EnableTemplateDialog(state = requestEnable, template = it)
             }

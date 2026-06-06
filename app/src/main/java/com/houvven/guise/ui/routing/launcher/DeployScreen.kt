@@ -72,6 +72,10 @@ import java.text.Collator
 import java.util.Locale
 
 
+/**
+ * The current sort type for the app list, persisted via [AppConfigKey].
+ * Defaults to [AppSortTypes.NAME] if no value is stored.
+ */
 private val appSortType by derivedStateOf {
     mutableStateOf(
         AppSortTypes.valueOf(
@@ -82,21 +86,49 @@ private val appSortType by derivedStateOf {
         )
     )
 }
+
+/**
+ * Whether to include package name in search filtering.
+ * Persisted via [AppConfigKey].
+ */
 private val searchByPackageName by derivedStateOf {
     mutableStateOf(AppConfigKey.run { mmkv.decodeBool(APP_SEARCH_BY_PACKAGE_NAME, false) })
 }
 
+/**
+ * Whether to display system applications in the app list.
+ * Persisted via [AppConfigKey].
+ */
 private val displaySystemApp by derivedStateOf {
     mutableStateOf(AppConfigKey.run { mmkv.decodeBool(DISPLAY_SYSTEM_APP, false) })
 }
 
+/**
+ * Whether to reverse the sort order of the app list.
+ * Persisted via [AppConfigKey].
+ */
 private val reverseOrder by derivedStateOf {
     mutableStateOf(AppConfigKey.run { mmkv.decodeBool(APP_REVERSE_SORT, false) })
 }
 
+/**
+ * The current search keyword used to filter the app list.
+ */
 private val searchKeyWorld by derivedStateOf { mutableStateOf("") }
 
 
+/**
+ * Generates a filtered and sorted list of [AppInfo] based on current user preferences.
+ *
+ * The processing pipeline applies the following filters and transformations in order:
+ * 1. Filters out system apps if [displaySystemApp] is false
+ * 2. Filters by [searchKeyWorld] against app labels (and package names if [searchByPackageName] is true)
+ * 3. Sorts by the selected [appSortType] (name, package name, install time, or update time)
+ * 4. Reverses the order if [reverseOrder] is true
+ * 5. Stable-sorts enabled apps to the top of the list
+ *
+ * @return a filtered, sorted list of [AppInfo] matching current criteria
+ */
 private fun generateApps(): List<AppInfo> {
     var result = LauncherState.apps.value
     if (!displaySystemApp.value) result = result.filterNot { it.isSystemApp }
@@ -126,6 +158,15 @@ private fun generateApps(): List<AppInfo> {
 }
 
 
+/**
+ * A card composable representing a single application in the deploy list.
+ *
+ * Displays the app icon, label, and package name. Enabled apps have a highlighted
+ * background to visually distinguish them. Clicking navigates to the deploy config
+ * editor for that application.
+ *
+ * @param appInfo the [AppInfo] to display in this card
+ */
 @Composable
 private fun AppCard(appInfo: AppInfo) {
     val clickable = {
@@ -166,6 +207,18 @@ private fun AppCard(appInfo: AppInfo) {
 }
 
 
+/**
+ * The main deploy screen of the Guise Xposed module launcher.
+ *
+ * Displays a list of installed applications that can be configured with the module.
+ * Supports:
+ * - Pull-to-refresh to reload the app list
+ * - Search with optional package name filtering
+ * - A menu dialog for sorting, filtering system apps, and reversing order
+ * - Navigation to per-app configuration editor on item click
+ *
+ * Sort and filter preferences are persisted via MMKV through [AppConfigKey].
+ */
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
@@ -334,7 +387,7 @@ fun DeployScreen() {
         onBack = cancelSearch
     )
 
-    // 生命周期
+    // Clear search keyword when the composable leaves the composition
     DisposableEffect(Unit) {
         onDispose {
             searchKeyWorld.value = ""

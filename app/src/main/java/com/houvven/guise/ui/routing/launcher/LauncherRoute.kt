@@ -38,26 +38,42 @@ import com.houvven.guise.R
 import com.houvven.guise.ui.components.simplify.SimplifyIcon
 
 
+/**
+ * Enumerates the available screens within the launcher's bottom navigation.
+ *
+ * Each screen type defines:
+ * - A composable [label] for the navigation bar item text (resolved from string resources)
+ * - An [icon] for the unselected state
+ * - A [selectedIcon] for the selected state (typically a filled variant)
+ *
+ * @property label composable that returns the localized display name for this tab
+ * @property icon the [ImageVector] icon shown when this tab is not selected
+ * @property selectedIcon the [ImageVector] icon shown when this tab is selected
+ */
 private enum class LauncherScreenType(
     val label: @Composable () -> String,
     val icon: ImageVector,
     val selectedIcon: ImageVector,
 ) {
+    /** The app deployment/configuration screen. */
     DEPLOY(
         { stringResource(id = R.string.action_deploy) },
         Icons.Outlined.Sell,
         Icons.Rounded.Sell
     ),
+    /** The configuration template management screen. */
     TEMPLATE(
         { stringResource(id = R.string.action_template) },
         Icons.Outlined.Layers,
         Icons.Rounded.Layers
     ),
+    /** The module runtime log viewer screen. */
     LOG(
         { stringResource(id = R.string.action_log) },
         Icons.Outlined.Description,
         Icons.Rounded.Description
     ),
+    /** The application settings and about screen. */
     SETTINGS(
         { stringResource(id = R.string.action_setting) },
         Icons.Outlined.Settings,
@@ -66,12 +82,33 @@ private enum class LauncherScreenType(
 }
 
 
+/**
+ * Tracks the currently selected launcher screen tab.
+ * Defaults to [LauncherScreenType.DEPLOY].
+ */
 private val currentPage by derivedStateOf { mutableStateOf(LauncherScreenType.DEPLOY) }
 
+/**
+ * The main launcher route composable that provides bottom navigation between
+ * the four primary screens of the Guise module manager.
+ *
+ * Displays a [NavigationBar] at the bottom with tabs for Deploy, Template, Log,
+ * and Settings. The content area uses [Crossfade] animation to transition between
+ * screens when the selected tab changes.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LauncherRoute() {
 
+    /**
+     * A single navigation bar item for the launcher.
+     *
+     * Displays the screen's icon and label, with the icon switching between
+     * outlined and rounded variants based on selection state. Selected text
+     * is rendered with [FontWeight.W900].
+     *
+     * @param routerType the [LauncherScreenType] this item represents
+     */
     @Composable
     fun RowScope.LauncherNavBarItem(
         routerType: LauncherScreenType

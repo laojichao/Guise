@@ -12,6 +12,22 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import com.houvven.guise.util.android.IntentUtils
 
+/**
+ * A composable that renders a clickable hyperlink text which opens a URL in the browser.
+ *
+ * The text is displayed using the provided [color] and [style]. When clicked,
+ * it launches the default browser with the given [url] via [IntentUtils.openBrowser].
+ *
+ * @param modifier Modifier applied to the underlying [ClickableText].
+ * @param label Optional display text. If `null`, the [url] itself is shown.
+ * @param url The URL to open when the text is clicked.
+ * @param color The text color. Defaults to [LocalContentColor.current].
+ * @param style The [TextStyle] applied to the text.
+ * @param softWrap Whether the text should break at soft line breaks.
+ * @param overflow How visual overflow should be handled.
+ * @param maxLines The maximum number of lines to display.
+ * @param onTextLayout Callback invoked when the text layout is computed.
+ */
 @Composable
 fun Hyperlink(
     modifier: Modifier = Modifier,
@@ -41,6 +57,22 @@ fun Hyperlink(
     }
 }
 
+/**
+ * A composable that renders a clickable email hyperlink which opens an email compose intent.
+ *
+ * The text is displayed using the provided [color] and [style]. When clicked,
+ * it launches an email intent for the given [address] via [IntentUtils.openEmail].
+ *
+ * @param modifier Modifier applied to the underlying [ClickableText].
+ * @param label Optional display text. If `null`, the email [address] itself is shown.
+ * @param address The email address to send to when the text is clicked.
+ * @param color The text color. Defaults to [LocalContentColor.current].
+ * @param style The [TextStyle] applied to the text.
+ * @param softWrap Whether the text should break at soft line breaks.
+ * @param overflow How visual overflow should be handled.
+ * @param maxLines The maximum number of lines to display.
+ * @param onTextLayout Callback invoked when the text layout is computed.
+ */
 @Composable
 fun EmailHyperLink(
     modifier: Modifier = Modifier,

@@ -4,10 +4,31 @@ import android.os.Build
 import com.houvven.guise.xposed.LoadPackageHandler
 import com.houvven.ktx_xposed.hook.setStaticField
 
+/**
+ * Xposed hook that spoofs [android.os.Build] and [android.os.Build.VERSION] static fields
+ * to disguise the device identity for the target application.
+ *
+ * Supports overriding the following groups of properties:
+ * - **Device identity**: [Build.BRAND], [Build.MANUFACTURER], [Build.MODEL], [Build.PRODUCT],
+ *   [Build.DEVICE], [Build.BOARD], [Build.HARDWARE], [Build.FINGERPRINT]
+ * - **OS version**: [Build.VERSION.SDK_INT], [Build.VERSION.RELEASE], [Build.VERSION.BASE_OS]
+ *
+ * Each field is only overwritten when the corresponding configuration value is non-blank
+ * (for string fields) or not equal to -1 (for numeric fields such as SDK_INT).
+ */
 class OsBuildHook : LoadPackageHandler {
 
+    /**
+     * Reads spoofed device properties from [config] and overwrites the corresponding
+     * static fields on [Build] and [Build.VERSION].
+     *
+     * String fields (brand, model, etc.) are skipped when their config value is blank.
+     * Numeric fields (sdkInt) and derived strings (androidVersion, baseOs) are skipped
+     * when their value is blank or equals the sentinel "-1".
+     */
     override fun onHook() {
         config.run {
+            // Overwrite string-based device identity fields on Build.
             mapOf(
                 arrayOf("BRAND", "MANUFACTURER") to brand,
                 arrayOf("MODEL") to model,
@@ -22,6 +43,7 @@ class OsBuildHook : LoadPackageHandler {
                 }
             }
 
+            // Overwrite version-related fields on Build.VERSION.
             mapOf(
                 arrayOf("SDK_INT") to sdkInt,
                 arrayOf("RELEASE") to androidVersion,

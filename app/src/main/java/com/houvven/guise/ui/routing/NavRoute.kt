@@ -21,11 +21,33 @@ import com.houvven.guise.ui.routing.editor.EditTemplateScreen
 import com.houvven.guise.ui.routing.launcher.LauncherRoute
 import com.houvven.guise.ui.routing.template.EnableTemplateScreen
 
+/**
+ * Global holder for the current [NavHostController]. Allows any composable in the app
+ * to access the navigation controller without passing it through the composable tree.
+ *
+ * **Warning:** Must be initialized before any navigation call is made; accessing [current]
+ * before initialization will throw [UninitializedPropertyAccessException].
+ */
 @SuppressLint("StaticFieldLeak")
 object LocalNavController {
     lateinit var current: NavHostController
 }
 
+/**
+ * Root navigation composable that defines the entire app's navigation graph using
+ * Accompanist's [AnimatedNavHost]. Each route maps to a [NavRoutingTypes] entry and
+ * its corresponding screen composable.
+ *
+ * Navigation destinations:
+ * - [NavRoutingTypes.LAUNCHER] -- main launcher screen.
+ * - [NavRoutingTypes.DEPLOY_CONFIG_EDITOR] -- config editor for a specific app,
+ *   requires `name` and `packageName` path arguments.
+ * - [NavRoutingTypes.ADD_TEMPLATE] -- screen for creating a new template.
+ * - [NavRoutingTypes.EDIT_TEMPLATE] -- screen for editing an existing template,
+ *   receives the [Template] via navigation arguments.
+ * - [NavRoutingTypes.ENABLE_TEMPLATE] -- screen for enabling a template on an app,
+ *   receives the [Template] via navigation arguments.
+ */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationRoute() {
@@ -62,6 +84,17 @@ fun NavigationRoute() {
 }
 
 
+/**
+ * Navigates to the given [route] and attaches extra key-value arguments to the
+ * destination's back-stack entry. This is useful for passing complex objects (such as
+ * [Template]) that cannot be serialized into path or query parameters.
+ *
+ * @param route the destination route string.
+ * @param args optional list of key-value pairs to attach as bundle arguments
+ *             to the destination's back-stack entry.
+ * @param navOptions advanced navigation options such as animations and pop behavior.
+ * @param navigatorExtras extra configuration for the underlying navigator.
+ */
 fun NavHostController.navigateAndArgument(
     route: String,
     args: List<Pair<String, Any>>? = null,

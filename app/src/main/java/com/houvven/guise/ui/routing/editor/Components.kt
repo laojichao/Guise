@@ -36,6 +36,12 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
+/**
+ * Displays a section title styled with the primary color scheme.
+ *
+ * @param text the title text to display.
+ * @param topPadding spacing above the title; defaults to 22.dp.
+ */
 @Composable
 internal fun Title(text: String, topPadding: Dp = 22.dp) {
     Text(
@@ -47,7 +53,11 @@ internal fun Title(text: String, topPadding: Dp = 22.dp) {
 }
 
 /**
- * 自定义容器 默认为水平排列
+ * Card-based container that arranges its [content] in a horizontal [Row] with
+ * space-between alignment. Used as a consistent wrapper for editor items such as
+ * input boxes and switches.
+ *
+ * @param content the composable content to render inside the card.
  */
 @Composable
 internal fun Container(content: @Composable () -> Unit) {
@@ -69,6 +79,14 @@ internal fun Container(content: @Composable () -> Unit) {
     }
 }
 
+/**
+ * A [Container] that displays a [label] and a [Switch] bound to [state].
+ * When the app is not running inside the hooked process ([isHooked] is false),
+ * the text is dimmed and the switch is disabled.
+ *
+ * @param state the boolean [MutableState] controlling the switch checked state.
+ * @param label the text label displayed to the left of the switch.
+ */
 @Composable
 internal fun ContainerSwitch(state: MutableState<Boolean>, label: String) {
     Container {
@@ -80,6 +98,12 @@ internal fun ContainerSwitch(state: MutableState<Boolean>, label: String) {
     }
 }
 
+/**
+ * Small filled icon button used as a trailing action inside input components.
+ *
+ * @param icon the [ImageVector] to render as the button icon.
+ * @param clickable callback invoked when the button is clicked.
+ */
 @Composable
 private fun IconButton(icon: ImageVector, clickable: () -> Unit) {
     Row {
@@ -89,6 +113,17 @@ private fun IconButton(icon: ImageVector, clickable: () -> Unit) {
     }
 }
 
+/**
+ * Foundation input box that binds to a [MutableState] string value with optional
+ * input validation. Not intended for direct use; prefer [InputBox] or [OperateInputBox].
+ *
+ * @param state the string [MutableState] bound to the text field value.
+ * @param label the label displayed inside the text field.
+ * @param validate predicate that receives the candidate new value and returns `true`
+ *                 if it should be accepted; defaults to always accepting.
+ * @param trailingIcon composable rendered at the end of the text field when the
+ *                     app is hooked.
+ */
 @Composable
 private fun BasicInputBox(
     state: MutableState<String>,
@@ -111,6 +146,15 @@ private fun BasicInputBox(
 }
 
 
+/**
+ * Standard text input box with a delete trailing icon that clears the field value
+ * when the field is non-blank.
+ *
+ * @param state the string [MutableState] bound to the text field value.
+ * @param label the label displayed inside the text field.
+ * @param validate predicate that accepts or rejects candidate input values;
+ *                 defaults to always accepting.
+ */
 @Composable
 internal fun InputBox(
     state: MutableState<String>,
@@ -125,6 +169,18 @@ internal fun InputBox(
 }
 
 
+/**
+ * Input box with an additional operational trailing icon (circle icon) that triggers
+ * [clickable] when pressed. Also shows a delete icon when the field is non-blank.
+ * The keyboard and focus are cleared before invoking [clickable].
+ *
+ * @param state the string [MutableState] bound to the text field value.
+ * @param label the label displayed inside the text field.
+ * @param showOperateIcon whether to display the operational trailing icon; defaults to `true`.
+ * @param validate predicate that accepts or rejects candidate input values;
+ *                 defaults to always accepting.
+ * @param clickable callback invoked when the operational icon is clicked.
+ */
 @OptIn(ExperimentalComposeUiApi::class, DelicateCoroutinesApi::class)
 @Composable
 internal fun OperateInputBox(
@@ -155,6 +211,16 @@ internal fun OperateInputBox(
     }
 }
 
+/**
+ * Specialized [OperateInputBox] whose operational icon generates a random value via
+ * [randomGenerator] and assigns it to the bound state.
+ *
+ * @param state the string [MutableState] bound to the text field value.
+ * @param label the label displayed inside the text field.
+ * @param validate predicate that accepts or rejects candidate input values;
+ *                 defaults to always accepting.
+ * @param randomGenerator a lambda that returns a random string value to populate the field.
+ */
 @Composable
 internal fun RandomInputBox(
     state: MutableState<String>,

@@ -19,6 +19,16 @@ import com.houvven.guise.ui.components.simplify.SimplifyIcon
 import com.houvven.guise.ui.routing.LocalNavController
 import com.houvven.guise.xposed.config.ModuleConfigManager
 
+/**
+ * Screen composable for creating a new spoofing template.
+ *
+ * Displays a [ConfigEditorView] with an empty configuration managed by a fresh
+ * [ModuleConfigManager]. The top app bar provides:
+ * - A back button to pop the navigation stack.
+ * - A delete button that clears all editor fields.
+ * - A save button that persists the current configuration as a new template
+ *   via the [SaveTemplate] dialog.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTemplateScreen() {

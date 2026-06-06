@@ -19,12 +19,14 @@ import com.houvven.guise.ui.alwaysDarkMode
 import com.houvven.guise.xposed.PackageConfig
 
 
+/** Predefined dark color scheme using purple, purple-grey, and pink accent colors. */
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
     tertiary = Pink80
 )
 
+/** Predefined light color scheme using purple, purple-grey, and pink accent colors. */
 private val LightColorScheme = lightColorScheme(
     primary = Purple40,
     secondary = PurpleGrey40,
@@ -42,6 +44,23 @@ private val LightColorScheme = lightColorScheme(
 )
 
 
+/**
+ * The root theme composable for the Guise application.
+ *
+ * Applies Material 3 theming with the following color scheme selection logic:
+ * 1. If [alwaysDarkMode] is enabled (user preference), forces dark mode with
+ *    dynamic colors on Android 12+ or the predefined [DarkColorScheme] on older versions
+ * 2. If [dynamicColor] is enabled and the device runs Android 12+, uses Material You
+ *    dynamic colors derived from the device wallpaper
+ * 3. Falls back to [DarkColorScheme] or [LightColorScheme] based on system dark theme setting
+ *
+ * Also configures the status bar color to match the theme surface color and adjusts
+ * the status bar icon appearance (light/dark) based on the effective dark mode state.
+ *
+ * @param darkTheme whether the system is currently in dark theme mode, defaults to [isSystemInDarkTheme]
+ * @param dynamicColor whether to use Material You dynamic color on Android 12+, defaults to true
+ * @param content the composable content tree to apply the theme to
+ */
 @Composable
 fun GuiseTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

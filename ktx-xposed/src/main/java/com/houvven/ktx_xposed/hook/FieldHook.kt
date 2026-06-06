@@ -3,12 +3,31 @@ package com.houvven.ktx_xposed.hook
 import com.houvven.ktx_xposed.utils.runXposedCatching
 import de.robv.android.xposed.XposedHelpers
 
+/**
+ * Sets a static field on the class identified by [className].
+ * The class is resolved via [findClass] using the current [classLoader].
+ *
+ * @param T the type of the value to set; used for automatic type dispatch
+ * @param className the fully qualified name of the class containing the static field
+ * @param fieldName the name of the static field to modify
+ * @param value the new value to assign to the field
+ */
 inline fun <reified T> setStaticField(className: String, fieldName: String, value: T) {
     runXposedCatching {
         findClass(className).setStaticField(fieldName, value)
     }
 }
 
+/**
+ * Sets a static field on this [Class] using type-aware dispatch.
+ * The value type is matched at runtime against primitive types (Boolean, Byte, Char, Short,
+ * Int, Long, Float, Double) and dispatched to the corresponding [XposedHelpers] setter.
+ * Non-primitive types fall through to [XposedHelpers.setStaticObjectField].
+ *
+ * @param T the type of the value to set; used for automatic type dispatch
+ * @param fieldName the name of the static field to modify
+ * @param value the new value to assign to the field
+ */
 inline fun <reified T> Class<*>.setStaticField(fieldName: String, value: T) {
     runXposedCatching {
         when (value) {
@@ -25,6 +44,17 @@ inline fun <reified T> Class<*>.setStaticField(fieldName: String, value: T) {
     }
 }
 
+/**
+ * Sets an instance field on the given [instance] object using type-aware dispatch.
+ * The value type is matched at runtime against primitive types (Boolean, Byte, Char, Short,
+ * Int, Long, Float, Double) and dispatched to the corresponding [XposedHelpers] setter.
+ * Non-primitive types fall through to [XposedHelpers.setObjectField].
+ *
+ * @param T the type of the value to set; used for automatic type dispatch
+ * @param instance the object instance whose field should be modified
+ * @param fieldName the name of the instance field to modify
+ * @param value the new value to assign to the field
+ */
 inline fun <reified T> setInstanceField(instance: Any, fieldName: String, value: T) {
     runXposedCatching {
         when (value) {

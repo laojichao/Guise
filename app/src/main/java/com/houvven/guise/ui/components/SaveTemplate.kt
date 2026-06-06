@@ -29,6 +29,20 @@ import com.houvven.guise.ui.GlobalSnackbarHost
 import com.houvven.guise.ui.routing.LauncherState
 import com.houvven.guise.xposed.config.ModuleConfig
 
+/**
+ * A dialog composable for saving the current module configuration as a new template.
+ *
+ * Presents a form with template type selection (common or app-exclusive), an optional
+ * package name field (for exclusive templates when the config's package name is blank),
+ * a required name field, and an optional description field. On confirmation, a [Template]
+ * is created and persisted via [LauncherState.addTemplate].
+ *
+ * The dialog is only rendered when [dialogState] is `true`. Dismissing or confirming
+ * the dialog sets [dialogState] to `false`.
+ *
+ * @param dialogState A [MutableState] controlling the visibility of this dialog.
+ * @param moduleConfig The current [ModuleConfig] whose settings will be saved into the template.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SaveTemplate(dialogState: MutableState<Boolean>, moduleConfig: ModuleConfig) {
@@ -143,6 +157,22 @@ fun SaveTemplate(dialogState: MutableState<Boolean>, moduleConfig: ModuleConfig)
 }
 
 
+/**
+ * A dialog composable for editing and updating an existing template.
+ *
+ * Pre-populates the form fields from the given [template], allowing the user to
+ * modify the template type, name, description, and optionally the package name.
+ * On confirmation, the template is updated in-place and persisted via
+ * [LauncherState.updateTemplate]. A success snackbar is shown after a successful update.
+ *
+ * The dialog is only rendered when [dialogState] is `true`. Dismissing or confirming
+ * the dialog sets [dialogState] to `false`.
+ *
+ * @param dialogState A [MutableState] controlling the visibility of this dialog.
+ * @param template The existing [Template] to be edited.
+ * @param moduleConfig The current [ModuleConfig] whose settings will be serialized
+ *        into the template's configuration field.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SaveEditTemplate(

@@ -51,6 +51,23 @@ import com.houvven.guise.xposed.PackageConfig
 import java.text.Collator
 import java.util.Locale
 
+/**
+ * Screen for enabling a configuration template across multiple applications.
+ *
+ * Displays a 3-column staggered grid of installed apps, split into two tabs:
+ * user apps and system apps. Users can select/deselect apps to apply the template's
+ * configuration. Apps already configured with this template are pre-selected.
+ *
+ * Selection changes are persisted to [PackageConfig.safePrefs] only when the screen
+ * is destroyed (via [LifecycleEventObserver]):
+ * - Selected apps have their package name mapped to the template's configuration string
+ * - Deselected apps have their configuration entry removed
+ * - The [LauncherState.apps] list is updated to reflect enable/disable state
+ *
+ * Supports horizontal drag gestures to swipe between the user apps and system apps tabs.
+ *
+ * @param template the [Template] whose configuration will be applied to selected apps
+ */
 @OptIn(
     ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class
 )
@@ -59,10 +76,11 @@ fun EnableTemplateScreen(template: Template) {
 
     val all = PackageConfig.safePrefs.all
 
-    // 系统与用户APP过滤
+    // Tab index: 0 = user apps, 1 = system apps
     var selectedTabIndex by remember { mutableStateOf(0) }
     val apps by remember { mutableStateOf(LauncherState.apps.value) }
 
+    // Pre-select apps that already have this template's configuration applied
     val selects = remember {
         mutableStateListOf(
             *apps
@@ -71,8 +89,13 @@ fun EnableTemplateScreen(template: Template) {
         )
     }
 
+    // Track deselected apps for removal on screen destroy
     val unselects = remember { mutableStateListOf<String>() }
 
+    /**
+     * Filters and sorts the app list based on the current tab selection.
+     * Selected apps are sorted to the top, with alphabetical ordering within each group.
+     */
     fun filterApps() =
         apps.toList()
             .filter { if (selectedTabIndex == 0) !it.isSystemApp else it.isSystemApp }
@@ -83,6 +106,14 @@ fun EnableTemplateScreen(template: Template) {
                 else 1
             }
 
+    /**
+     * A card composable for a single app in the selection grid.
+     *
+     * Toggles the app's selection state on click. Selected apps are highlighted
+     * with [MaterialTheme.colorScheme.inversePrimary] background.
+     *
+     * @param appInfo the [AppInfo] to display in this card
+     */
     @Composable
     fun ItemCard(appInfo: AppInfo) {
         val selected = selects.contains(appInfo.packageName)
@@ -138,7 +169,7 @@ fun EnableTemplateScreen(template: Template) {
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        // 模拟系统返回键
+                        // Simulate system back press
                         LocalNavController.current.popBackStack()
                     }) {
                         SimplifyIcon(Icons.Default.ArrowBack)
@@ -153,7 +184,7 @@ fun EnableTemplateScreen(template: Template) {
                 .draggable(
                     orientation = Orientation.Horizontal,
                     state = rememberDraggableState { delta ->
-                        // 判断滑动方向
+                        // Swipe between user apps (tab 0) and system apps (tab 1)
                         if (delta > 0) {
                             if (selectedTabIndex == 1) selectedTabIndex = 0
                         } else {
@@ -185,17 +216,20 @@ fun EnableTemplateScreen(template: Template) {
     }
 
 
+    // Persist selection changes when the screen is destroyed
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     val lifecycleObserver = remember {
         LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_DESTROY) {
+                // Remove configuration for deselected apps
                 unselects.forEach {
                     PackageConfig.safePrefs.edit { remove(it) }
                     LauncherState.apps.value.find { app -> app.packageName == it }?.let {
                         it.isEnable = false
                     }
                 }
+                // Apply configuration for selected apps
                 selects.forEach {
                     PackageConfig.safePrefs.edit { putString(it, template.configuration) }
                     LauncherState.apps.value.find { app -> app.packageName == it }?.let {
@@ -212,5 +246,3 @@ fun EnableTemplateScreen(template: Template) {
     }
 
 }
-
-

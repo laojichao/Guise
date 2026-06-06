@@ -72,6 +72,13 @@ import com.houvven.guise.ui.utils.hideLauncherIcon
 import com.houvven.guise.ui.utils.isHideLauncherIcon
 import kotlinx.coroutines.launch
 
+/**
+ * Displays the current module activation state as a colored card.
+ *
+ * Shows a green primary-colored card with a check icon when the module
+ * is successfully hooked/activated, or a red error-colored card with an
+ * error icon and a prompt to activate in the Xposed framework when not hooked.
+ */
 @Composable
 private fun ModuleStateView() {
     val modifier = Modifier
@@ -102,6 +109,12 @@ private fun ModuleStateView() {
     }
 }
 
+/**
+ * A styled section title used to label groups of settings.
+ *
+ * @param text the title text to display
+ * @param topPadding the top padding above the title, defaults to 30.dp
+ */
 @Composable
 private fun Title(text: String, topPadding: Dp = 30.dp) {
     Text(
@@ -112,6 +125,13 @@ private fun Title(text: String, topPadding: Dp = 30.dp) {
     )
 }
 
+/**
+ * A horizontal row container used to lay out settings items with consistent padding.
+ *
+ * @param verticalPadding the vertical padding applied to the row, defaults to 1.dp
+ * @param horizontalArrangement the horizontal arrangement of children, defaults to [Arrangement.Start]
+ * @param content the composable content to render within the row
+ */
 @Composable
 private fun Container(
     verticalPadding: Dp = 1.dp,
@@ -128,6 +148,17 @@ private fun Container(
     )
 }
 
+/**
+ * A settings row with a label, optional subtitle, and a [Switch] toggle.
+ *
+ * Displays the label and subtitle on the left side, and a switch on the right
+ * side. Toggling the switch updates the provided [state] and invokes [onChange].
+ *
+ * @param label the primary text label for this setting
+ * @param subLabel an optional secondary description displayed below the label
+ * @param state the [MutableState] controlling the switch checked state
+ * @param onChange callback invoked when the switch value changes, receiving the new boolean value
+ */
 @Composable
 private fun ContainerSwitch(
     label: String,
@@ -148,6 +179,22 @@ private fun ContainerSwitch(
     }
 }
 
+/**
+ * The settings screen for the Guise application.
+ *
+ * Provides configuration options including:
+ * - Hide launcher icon
+ * - Force dark mode
+ * - Skip module activation detection (for non-root frameworks like LSPatch)
+ * - Experimental Lsposed sync configuration
+ *
+ * Also displays the About section with version info, author, update link,
+ * feedback channels, and a donation section with QR code display via
+ * a modal bottom sheet.
+ *
+ * When the Lsposed sync feature is being initialized, a loading dialog
+ * is shown to indicate the download/initialization progress.
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 internal fun SettingScreen() {
@@ -347,4 +394,3 @@ internal fun SettingScreen() {
     }
 
 }
-

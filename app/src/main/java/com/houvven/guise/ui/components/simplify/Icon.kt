@@ -18,6 +18,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 
 
+/**
+ * A simplified [Icon] composable that accepts a [Painter] and omits the content description.
+ *
+ * @param painter The [Painter] used to draw the icon.
+ * @param modifier Modifier applied to the icon.
+ * @param tint The tint color applied to the icon. Defaults to [LocalContentColor.current].
+ */
 @Composable
 fun SimplifyIcon(
     painter: Painter,
@@ -28,6 +35,13 @@ fun SimplifyIcon(
 }
 
 
+/**
+ * A simplified [Icon] composable that accepts an [ImageVector] and omits the content description.
+ *
+ * @param imageVector The [ImageVector] used to draw the icon.
+ * @param modifier Modifier applied to the icon.
+ * @param tint The tint color applied to the icon. Defaults to [LocalContentColor.current].
+ */
 @Composable
 fun SimplifyIcon(
     imageVector: ImageVector,
@@ -38,6 +52,13 @@ fun SimplifyIcon(
 }
 
 
+/**
+ * A simplified [Icon] composable that accepts an [ImageBitmap] and omits the content description.
+ *
+ * @param bitmap The [ImageBitmap] used to draw the icon.
+ * @param modifier Modifier applied to the icon.
+ * @param tint The tint color applied to the icon. Defaults to [LocalContentColor.current].
+ */
 @Composable
 fun SimplifyIcon(
     bitmap: ImageBitmap,
@@ -47,6 +68,16 @@ fun SimplifyIcon(
     Icon(bitmap, null, modifier, tint)
 }
 
+/**
+ * A simplified [Image] composable that accepts a [Painter] and omits the content description.
+ *
+ * @param painter The [Painter] used to draw the image.
+ * @param modifier Modifier applied to the image.
+ * @param alignment The alignment of the image within its bounds.
+ * @param contentScale How the image should be scaled to fit its bounds.
+ * @param alpha The alpha transparency for the image.
+ * @param colorFilter Optional [ColorFilter] applied to the image.
+ */
 @Composable
 fun SimplifyImage(
     painter: Painter,
@@ -59,6 +90,17 @@ fun SimplifyImage(
     Image(painter, null, modifier, alignment, contentScale, alpha, colorFilter)
 }
 
+/**
+ * A simplified [Image] composable that accepts an [ImageBitmap] and omits the content description.
+ *
+ * @param bitmap The [ImageBitmap] used to draw the image.
+ * @param modifier Modifier applied to the image.
+ * @param alignment The alignment of the image within its bounds.
+ * @param contentScale How the image should be scaled to fit its bounds.
+ * @param alpha The alpha transparency for the image.
+ * @param colorFilter Optional [ColorFilter] applied to the image.
+ * @param filterQuality The quality of the image scaling filter.
+ */
 @Composable
 fun SimplifyImage(
     bitmap: ImageBitmap,
@@ -72,6 +114,16 @@ fun SimplifyImage(
     Image(bitmap, null, modifier, alignment, contentScale, alpha, colorFilter, filterQuality)
 }
 
+/**
+ * A simplified [Image] composable that accepts an [ImageVector] and omits the content description.
+ *
+ * @param imageVector The [ImageVector] used to draw the image.
+ * @param modifier Modifier applied to the image.
+ * @param alignment The alignment of the image within its bounds.
+ * @param contentScale How the image should be scaled to fit its bounds.
+ * @param alpha The alpha transparency for the image.
+ * @param colorFilter Optional [ColorFilter] applied to the image.
+ */
 @Composable
 fun SimplifyImage(
     imageVector: ImageVector,

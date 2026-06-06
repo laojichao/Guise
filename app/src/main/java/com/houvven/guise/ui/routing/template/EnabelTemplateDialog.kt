@@ -13,6 +13,19 @@ import com.houvven.guise.ui.GlobalSnackbarHost
 import com.houvven.guise.ui.routing.LauncherState
 import com.houvven.guise.xposed.PackageConfig
 
+/**
+ * A confirmation dialog for enabling an exclusive template to a specific application.
+ *
+ * When the user confirms, the template's configuration is written to [PackageConfig.safePrefs]
+ * using the template's target package name as the key. The corresponding app's
+ * [AppInfo.isEnable] state in [LauncherState.apps] is also updated to reflect the change.
+ * A success snackbar is shown on confirmation.
+ *
+ * The dialog is only visible when [state] is `true`; it returns early otherwise.
+ *
+ * @param state a [MutableState] controlling dialog visibility. Set to `false` on dismiss or confirm.
+ * @param template the [Template] to enable for its target application
+ */
 @Composable
 fun EnableTemplateDialog(state: MutableState<Boolean>, template: Template) {
     if (!state.value) return

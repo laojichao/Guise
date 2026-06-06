@@ -10,6 +10,17 @@ import kotlinx.coroutines.withContext
 import java.io.FileOutputStream
 
 
+/**
+ * Downloads the content at the given [url] using this [HttpClient] and writes
+ * the response body directly into the provided [fileOutputStream].
+ *
+ * The download runs on [Dispatchers.IO] to avoid blocking the calling coroutine's
+ * dispatcher. The stream is flushed and closed after writing is complete.
+ *
+ * @param url the URL to download the resource from.
+ * @param fileOutputStream the output stream to write the downloaded bytes into.
+ *   The stream will be closed automatically after the write completes.
+ */
 suspend fun HttpClient.download(url: String, fileOutputStream: FileOutputStream) {
     get<HttpResponse> { url(url) }.readBytes().let {
         withContext(Dispatchers.IO) {

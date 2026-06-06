@@ -9,6 +9,26 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.DialogProperties
 
+/**
+ * An [AlertDialog] composable that omits both the confirm and dismiss buttons.
+ *
+ * Useful for displaying content-only dialogs where the user dismisses by tapping
+ * outside or pressing the back button. All standard AlertDialog customization
+ * parameters (icon, shape, colors, elevation, etc.) are supported.
+ *
+ * @param onDismissRequest Callback invoked when the user requests to dismiss the dialog.
+ * @param modifier Modifier applied to the dialog container.
+ * @param title Optional composable title displayed at the top of the dialog.
+ * @param icon Optional composable icon displayed above the title.
+ * @param shape The shape of the dialog surface.
+ * @param tonalElevation The tonal elevation of the dialog surface.
+ * @param containerColor The background color of the dialog container.
+ * @param iconContentColor The tint color for the icon.
+ * @param titleContentColor The color of the title text.
+ * @param textContentColor The color of the content text.
+ * @param properties Platform-specific dialog behavior properties.
+ * @param content The main content composable displayed in the dialog body.
+ */
 @Composable
 fun NoBtnAlertDialog(
     onDismissRequest: () -> Unit,

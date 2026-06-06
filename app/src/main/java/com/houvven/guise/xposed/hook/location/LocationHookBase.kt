@@ -15,14 +15,49 @@ import com.houvven.ktx_xposed.hook.beforeHookSomeSameNameMethod
 import com.houvven.ktx_xposed.hook.setMethodResult
 import com.houvven.ktx_xposed.hook.setSomeSameNameMethodResult
 
+/**
+ * Base class providing reusable hook utilities for disabling non-GPS location
+ * providers so that a spoofed GPS location cannot be cross-checked against
+ * alternative positioning sources.
+ *
+ * Subclasses (e.g., [LocationHook]) inherit these helpers and can selectively
+ * call them based on configuration flags.
+ *
+ * The utilities are organized into four groups:
+ * 1. **Provider state** -- Forces [LocationManager] to report GPS as the only
+ *    available and best provider, while disabling NETWORK, FUSED, and PASSIVE.
+ * 2. **Telephony location** -- Nullifies cell-based location data from
+ *    [TelephonyManager] and [PhoneStateListener].
+ * 3. **Wi-Fi location** -- Disables Wi-Fi scanning and spoofs MAC addresses
+ *    to zero, preventing Wi-Fi-based positioning.
+ * 4. **Cell location** -- Invalidates [GsmCellLocation] identifiers (PSC, LAC)
+ *    so cell-tower triangulation fails.
+ */
 @Suppress("DEPRECATION")
 open class LocationHookBase {
 
+    /**
+     * Disables all non-GPS location providers by combining provider state
+     * manipulation and telephony location nullification.
+     *
+     * Should be called after the primary GPS location hook is installed.
+     */
     protected fun setOtherServicesFail() {
         setProviderState()
         setTelLocationFail()
     }
 
+    /**
+     * Configures [LocationManager] to report GPS as the sole available and
+     * best provider.
+     *
+     * Hooks the following methods:
+     * - `isLocationEnabledForUser` -- returns `true` so location appears enabled.
+     * - `isProviderEnabledForUser` / `hasProvider` -- returns `true` for GPS,
+     *   `false` for FUSED, NETWORK, and PASSIVE providers.
+     * - `getProviders` / `getAllProviders` -- returns a list containing only GPS.
+     * - `getBestProvider` -- returns [LocationManager.GPS_PROVIDER].
+     */
     private fun setProviderState() {
         LocationManager::class.java.apply {
             setMethodResult(
@@ -54,6 +89,18 @@ open class LocationHookBase {
     }
 
 
+    /**
+     * Nullifies cell-tower-based location data from [TelephonyManager] and
+     * [PhoneStateListener] to prevent the target app from obtaining location
+     * via cellular infrastructure.
+     *
+     * Hooks the following:
+     * - `getCellLocation`, `getAllCellInfo`, `getNeighboringCellInfo`,
+     *   `getLastKnownCellIdentity` -- all return `null`.
+     * - `getLocationData` (API 33+) -- returns [INCLUDE_LOCATION_DATA_NONE].
+     * - `PhoneStateListener.onCellLocationChanged`,
+     *   `PhoneStateListener.onCellInfoChanged` -- both return `null`.
+     */
     private fun setTelLocationFail() {
         TelephonyManager::class.java.run {
             setSomeSameNameMethodResult(
@@ -80,6 +127,18 @@ open class LocationHookBase {
 
     }
 
+    /**
+     * Disables Wi-Fi-based location by making [WifiManager] report Wi-Fi as
+     * disabled and returning empty scan results. Also zeroes out the device's
+     * Wi-Fi MAC address and BSSID.
+     *
+     * Hooked methods:
+     * - [WifiManager.getScanResults] -- returns an empty list.
+     * - [WifiManager.isWifiEnabled] -- returns `false`.
+     * - [WifiManager.isScanAlwaysAvailable] -- returns `false`.
+     * - [WifiManager.getWifiState] -- returns [WifiManager.WIFI_STATE_DISABLED].
+     * - [WifiInfo.getMacAddress] / [WifiInfo.getBSSID] -- returns `"00:00:00:00:00:00"`.
+     */
     protected fun makeWifiLocationFail() {
         WifiManager::class.java.run {
             setMethodResult("getScanResults", emptyList<ScanResult>())
@@ -93,6 +152,11 @@ open class LocationHookBase {
         }
     }
 
+    /**
+     * Invalidates [GsmCellLocation] identifiers by returning `-1` for
+     * both PSC (Primary Scrambling Code) and LAC (Location Area Code),
+     * causing cell-tower-based location lookups to fail.
+     */
     protected fun makeCellLocationFail() {
         GsmCellLocation::class.java.run {
             setMethodResult("getPsc", -1)

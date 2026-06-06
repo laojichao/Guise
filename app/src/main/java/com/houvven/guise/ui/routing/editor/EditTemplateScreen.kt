@@ -18,6 +18,23 @@ import com.houvven.guise.ui.routing.LocalNavController
 import com.houvven.guise.xposed.config.ModuleConfig
 import com.houvven.guise.xposed.config.ModuleConfigManager
 
+/**
+ * Screen composable for editing an existing spoofing [Template].
+ *
+ * Deserializes the template's JSON configuration into a [ModuleConfig], wraps it in a
+ * [ModuleConfigManager], and displays a [ConfigEditorView] for modification. The template's
+ * [updateTime][Template.updateTime] is automatically set to the current timestamp when this
+ * screen is composed.
+ *
+ * The top app bar provides:
+ * - A back button to pop the navigation stack.
+ * - A delete button that clears all editor fields.
+ * - A save button that syncs the editor state into the config, then opens a
+ *   [SaveEditTemplate] dialog to persist changes to the existing template.
+ *
+ * @param template the [Template] to edit; its [Template.configuration] JSON is parsed
+ *                 to initialize the editor state.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTemplateScreen(template: Template) {

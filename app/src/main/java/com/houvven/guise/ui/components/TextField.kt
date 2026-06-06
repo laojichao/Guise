@@ -29,6 +29,33 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.houvven.guise.ui.components.simplify.SimplifyIcon
 
+/**
+ * A Material 3 [TextField] with transparent indicator lines and elevated appearance.
+ *
+ * This variant removes the default underline indicator that Material 3 text fields display,
+ * replacing it with a rounded shape for a cleaner, card-like aesthetic. All other
+ * standard [TextField] parameters are supported and forwarded directly.
+ *
+ * @param value The current text value of the text field.
+ * @param onValueChange Callback invoked when the text value changes.
+ * @param modifier Modifier applied to the text field.
+ * @param enabled Whether the text field is enabled for user interaction.
+ * @param readOnly Whether the text field is read-only.
+ * @param textStyle The [TextStyle] to apply to the input text.
+ * @param label Optional composable label displayed inside the text field.
+ * @param placeholder Optional composable placeholder displayed when the text field is empty.
+ * @param leadingIcon Optional composable icon displayed at the start of the text field.
+ * @param trailingIcon Optional composable icon displayed at the end of the text field.
+ * @param supportingText Optional composable text displayed below the text field.
+ * @param isError Whether the text field is in an error state.
+ * @param visualTransformation Transforms the visual representation of the input text.
+ * @param keyboardOptions Configuration for the software keyboard.
+ * @param keyboardActions Actions to execute in response to keyboard IME events.
+ * @param singleLine Whether the text field should be constrained to a single line.
+ * @param maxLines The maximum number of visible lines (only effective when [singleLine] is false).
+ * @param interactionSource The [MutableInteractionSource] for observing interaction events.
+ * @param shape The shape of the text field container. Defaults to a rounded rectangle with 15dp corners.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ElevatedTextField(
@@ -85,6 +112,16 @@ internal fun ElevatedTextField(
 }
 
 
+/**
+ * A search box composable with a rounded, elevated surface and a leading search icon.
+ *
+ * Renders a [BasicTextField] inside a [Surface] with a shadow, rounded corners, and
+ * a leading [SimplifyIcon] using the [Icons.TwoTone.ManageSearch] icon. The search
+ * box occupies the full available width with horizontal padding.
+ *
+ * @param value The current text value of the search box.
+ * @param onValueChange Callback invoked when the text value changes.
+ */
 @Composable
 fun SearchBox(value: String, onValueChange: (String) -> Unit) {
     BasicTextField(

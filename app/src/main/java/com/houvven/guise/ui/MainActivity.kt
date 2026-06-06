@@ -18,6 +18,16 @@ import com.houvven.guise.ui.routing.NavigationRoute
 import com.houvven.guise.ui.theme.GuiseTheme
 
 
+/**
+ * The main entry point activity for the Guise application.
+ *
+ * Sets up the Jetpack Compose UI with a [GuiseTheme], providing a [Scaffold] with
+ * a global [SnackbarHost] for displaying notifications. The snackbar container color
+ * adapts based on the [GlobalSnackbarHost.onError] state -- using the error color
+ * scheme when an error is displayed, or the primary color otherwise.
+ *
+ * The main content area renders the app's navigation graph via [NavigationRoute].
+ */
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {

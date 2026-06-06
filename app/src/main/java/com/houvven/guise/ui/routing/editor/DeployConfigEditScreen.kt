@@ -29,6 +29,23 @@ import com.houvven.guise.ui.utils.oneClickRandom
 import com.houvven.guise.xposed.config.ModuleConfig
 import com.houvven.guise.xposed.config.ModuleConfigManager
 
+/**
+ * Screen composable for editing the deployed spoofing configuration of a specific application.
+ *
+ * Loads the existing [ModuleConfig] for the given [packageName] and presents a [ConfigEditorView]
+ * for modification. The top app bar provides:
+ * - A back button to return to the previous screen.
+ * - A delete button that resets all configuration fields and shows a success snackbar.
+ * - A save button that persists changes directly to the deployed config and shows a success snackbar.
+ * - An overflow menu with additional actions:
+ *   - **Stop app**: Force-stops the target application (requires root).
+ *   - **Restart app**: Force-stops and relaunches the target application (requires root).
+ *   - **One-click random**: Randomizes all configurable fields at once.
+ *   - **Save as template**: Opens a dialog to save the current config as a reusable template.
+ *
+ * @param name the display name of the target application, shown in the top bar title.
+ * @param packageName the package name of the target application used to load its [ModuleConfig].
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable

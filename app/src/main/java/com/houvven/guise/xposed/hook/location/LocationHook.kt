@@ -20,22 +20,67 @@ import com.houvven.ktx_xposed.hook.setMethodResult
 import com.houvven.ktx_xposed.hook.setSomeSameNameMethodResult
 
 
+/**
+ * Xposed hook that spoofs GPS and fused location data for a target application.
+ *
+ * This hook intercepts all major location-related APIs so the target application
+ * receives a user-configured fake latitude and longitude instead of the real device
+ * position. It covers:
+ *
+ * - **Latitude/Longitude** via [Location.getLatitude] and [Location.getLongitude].
+ * - **Last known location** returned by [LocationManager.getLastLocation] and
+ *   [LocationManager.getLastKnownLocation].
+ * - **Location updates** delivered through [LocationListener] callbacks registered
+ *   via [LocationManager.requestLocationUpdates] or [LocationManager.requestSingleUpdate].
+ * - **GNSS satellite status** by injecting dummy [GnssStatus] data into constructors
+ *   and [GpsStatus] objects.
+ * - **GPS status listener events** (STARTED / FIRST_FIX) to simulate an active GPS.
+ * - **NMEA listener removal** to prevent real NMEA data from leaking.
+ *
+ * Optionally applies a small random offset to the configured coordinates
+ * (when [config.randomOffset] is true) and can force Wi-Fi / cell-based
+ * location providers to fail so the target app is funneled to the GPS provider.
+ *
+ * If both [latitude] and [longitude] are `-1.0`, this hook is a no-op.
+ */
 @Suppress("DEPRECATION")
 class LocationHook : LoadPackageHandler, LocationHookBase() {
 
-
+    /** The spoofed latitude, loaded from module configuration. */
     private var latitude = config.latitude
+
+    /** The spoofed longitude, loaded from module configuration. */
     private var longitude = config.longitude
 
+    /** Number of simulated visible satellites for GNSS status injection. */
     private val svCount = 5
+
+    /** Simulated satellite vehicle IDs with flags. */
     private val svidWithFlags = intArrayOf(1, 2, 3, 4, 5)
+
+    /** Simulated carrier-to-noise ratios (dB-Hz) for each satellite. */
     private val cn0s = floatArrayOf(0F, 0F, 0F, 0F, 0F)
+
+    /** Simulated satellite elevation angles (degrees). */
     private val elevations = cn0s.clone()
+
+    /** Simulated satellite azimuth angles (degrees). */
     private val azimuths = cn0s.clone()
+
+    /** Simulated carrier frequencies (Hz) for each satellite. */
     private val carrierFrequencies = cn0s.clone()
+
+    /** Simulated baseband C/N0 values (dB-Hz). */
     private val basebandCn0DbHzs = cn0s.clone()
 
 
+    /**
+     * Entry point for the location hook. Performs all necessary interceptions
+     * to replace real GPS data with the configured fake coordinates.
+     *
+     * Skips execution entirely if both [latitude] and [longitude] are `-1.0`
+     * (no fake location configured).
+     */
     override fun onHook() {
         if (longitude == -1.0 && latitude == -1.0) return
 
@@ -57,6 +102,10 @@ class LocationHook : LoadPackageHandler, LocationHookBase() {
         hookGpsStatusListener()
     }
 
+    /**
+     * Overrides [Location.getLatitude] and [Location.getLongitude] to return
+     * the spoofed coordinates for all [Location] instances.
+     */
     private fun fakeLatlng() {
         Location::class.java.run {
             setMethodResult("getLongitude", longitude)
@@ -64,6 +113,11 @@ class LocationHook : LoadPackageHandler, LocationHookBase() {
         }
     }
 
+    /**
+     * Hooks [LocationManager.getLastLocation] and
+     * [LocationManager.getLastKnownLocation] to return a fake [Location]
+     * object populated with the spoofed coordinates.
+     */
     private fun setLastLocation() {
         LocationManager::class.java.setSomeSameNameMethodResult(
             "getLastLocation",
@@ -72,6 +126,13 @@ class LocationHook : LoadPackageHandler, LocationHookBase() {
         )
     }
 
+    /**
+     * Hooks [LocationManager.addGpsStatusListener] so that immediately after a
+     * [GpsStatus.Listener] is registered, it receives synthetic STARTED and
+     * FIRST_FIX events, simulating an active GPS lock.
+     *
+     * @see GpsStatus.Listener.onGpsStatusChanged
+     */
     private fun hookGpsStatusListener() {
         LocationManager::class.java.afterHookedMethod(
             methodName = "addGpsStatusListener",
@@ -84,6 +145,17 @@ class LocationHook : LoadPackageHandler, LocationHookBase() {
         }
     }
 
+    /**
+     * Hooks [LocationManager.getGpsStatus] to replace the real GPS status
+     * object with one that reports dummy satellite data.
+     *
+     * Uses reflection to find the internal `setStatus` method on [GpsStatus]
+     * (the signature varies across Android versions) and populates it with
+     * the simulated satellite arrays ([svCount], [svidWithFlags], [cn0s],
+     * [elevations], [azimuths]).
+     *
+     * If neither expected `setStatus` overload is found, the hook is skipped.
+     */
     private fun hookGpsStatus() {
         LocationManager::class.java.beforeHookedMethod(
             methodName = "getGpsStatus",
@@ -135,6 +207,11 @@ class LocationHook : LoadPackageHandler, LocationHookBase() {
         }
     }
 
+    /**
+     * Hooks the [GnssStatus] constructor to inject dummy satellite data,
+     * so any [GnssStatus] objects created by the system reflect the
+     * simulated satellite constellation.
+     */
     private fun hookGnssStatus() {
         GnssStatus::class.java.beforeHookConstructor(
             Int::class.java,
@@ -155,6 +232,14 @@ class LocationHook : LoadPackageHandler, LocationHookBase() {
         }
     }
 
+    /**
+     * Hooks all overloads of [LocationManager.requestLocationUpdates] and
+     * [LocationManager.requestSingleUpdate] that accept a [LocationListener].
+     *
+     * After each registration call, immediately delivers a single fake
+     * [Location] to the listener via [LocationListener.onLocationChanged],
+     * so the target application receives the spoofed position right away.
+     */
     private fun hookLocationUpdate() {
         val requestLocationUpdates = "requestLocationUpdates"
         val requestSingleUpdate = "requestSingleUpdate"
@@ -176,10 +261,21 @@ class LocationHook : LoadPackageHandler, LocationHookBase() {
         }
     }
 
+    /**
+     * Disables all NMEA listener registration methods on [LocationManager]
+     * to prevent real NMEA sentences from reaching the target application.
+     */
     private fun removeNmeaListener() {
         LocationManager::class.java.setAllMethodResult("addNmeaListener", false)
     }
 
+    /**
+     * Populates a [Location] object with the spoofed coordinates and
+     * realistic metadata (provider, accuracy, timestamps).
+     *
+     * @param location the [Location] instance to modify in place.
+     * @return the same [Location] instance with spoofed values applied.
+     */
     private fun modifyLocation(location: Location): Location {
         return location.also {
             it.longitude = longitude
